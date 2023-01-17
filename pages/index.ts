@@ -1,6 +1,8 @@
+import "./index.css";
 import * as docs from "../src"
 
-let testButt = document.body.appendChild(document.createElement('button'))
+let testButt = document.createElement('button')
+document.body.prepend(testButt)
 
 testButt.innerHTML = 'Test'
 
@@ -21,4 +23,5 @@ let openWindow = () => {
     wind?.addEventListener('unload', () => {
         docs.deregisterDocument(wind!.document);
     })
+    wind!.document.body.innerHTML = document.body.innerHTML
 }

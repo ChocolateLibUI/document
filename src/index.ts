@@ -32,8 +32,14 @@ export let registerDocument = (document: Document, styles?: boolean) => {
         if (styles) {
             let headElements = mainDocument.head.children
             for (let i = 0; i < headElements.length; i++) {
-                if (headElements[i] instanceof HTMLLinkElement && (<HTMLLinkElement>headElements[i]).rel === 'stylesheet') {
-                    document.head.appendChild(headElements[i].cloneNode());
+                switch (headElements[i].nodeName) {
+                    case 'LINK':
+                        if ((<HTMLLinkElement>headElements[i]).rel !== 'stylesheet') {
+                            break;
+                        }
+                    case 'STYLE':
+                        document.head.appendChild(headElements[i].cloneNode(true));
+                        break;
                 }
             }
         }
