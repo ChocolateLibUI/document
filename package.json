@@ -1,6 +1,6 @@
 {
   "name": "@chocolatelibui/document",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -41,6 +41,6 @@
   },
   "homepage": "https://github.com/ChocolateLibUI/document#readme",
   "dependencies": {
-    "@chocolatelib/events": "^0.0.6"
+    "@chocolatelib/events": "^0.0.7"
   }
 }

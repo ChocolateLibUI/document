@@ -4,7 +4,6 @@ let eventsInternal = new EventHandler<{
     documentAdded: Document,
     documentRemoved: Document,
 }, {}>()
-
 /**Document event handler */
 export let events = eventsInternal.eventsUserOnly;
 /**List of registered documents*/
@@ -15,11 +14,17 @@ eventsInternal.target = {
     documents,
     mainDocument,
 };
+/**Itterates a function over all existing documents */
+export let forDocuments = (func: (document: Document) => void) => {
+    for (let i = 0; i < documents.length; i++) {
+        func(documents[i]);
+    }
+}
 
 /**Registers a document with the theme engine, which will be updated with
  * @param document document to register
  * @param styles copies all style from main document if set true */
-export let registerDocument = async (document: Document, styles: boolean) => {
+export let registerDocument = (document: Document, styles?: boolean) => {
     if (documents.includes(document)) {
         console.warn('Document registered twice');
     } else {
@@ -37,7 +42,7 @@ export let registerDocument = async (document: Document, styles: boolean) => {
 }
 
 /**Registers a document with the theme engine, which will be updated with */
-export let deregisterDocument = async (document: Document) => {
+export let deregisterDocument = (document: Document) => {
     let index = documents.indexOf(document);
     if (index != -1) {
         documents.splice(index, 1);
