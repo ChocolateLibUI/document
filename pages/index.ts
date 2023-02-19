@@ -1,21 +1,22 @@
 import "./index.css";
-import * as docs from "../src"
+import { defa } from "./body"
+import Handler from "../src"
 
-let testButt = document.createElement('button')
-document.body.prepend(testButt)
-
-testButt.innerHTML = 'Test'
-
-testButt.onclick = () => {
-    openWindow();
-}
-
-docs.events.on('documentAdded', (e) => {
+let docs = new Handler(document);
+docs.events.on('added', (e) => {
     console.warn('Doc Added');
 });
-docs.events.on('documentRemoved', (e) => {
+docs.events.on('removed', (e) => {
     console.warn('Doc Removed');
 });
+
+let constructBody = (body: HTMLElement) => {
+    let testButt = document.createElement('button')
+    testButt.innerHTML = 'Test'
+    testButt.onclick = () => { openWindow(); }
+    body.innerHTML = defa;
+    body.prepend(testButt)
+}
 
 let openWindow = () => {
     let wind = window.open('', '', "popup")
@@ -23,5 +24,9 @@ let openWindow = () => {
     wind?.addEventListener('unload', () => {
         docs.deregisterDocument(wind!.document);
     })
-    wind!.document.body.innerHTML = document.body.innerHTML
+    if (wind!.document.body) {
+        constructBody(wind!.document.body)
+    }
 }
+
+constructBody(document.body);

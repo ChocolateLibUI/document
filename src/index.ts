@@ -1,36 +1,49 @@
-import { EventHandler } from "@chocolatelib/events"
+import { EventHandler, EventHandlerUserOnly } from "@chocolatelib/events"
 
-let eventsInternal = new EventHandler<{
-    documentAdded: Document,
-    documentRemoved: Document,
-}, {}>()
-/**Document event handler */
-export let events = eventsInternal.eventsUserOnly;
-/**List of registered documents*/
-export let documents: Document[] = [document]
-/**Main document, same as the global document variable */
-export let mainDocument: Document = document;
-eventsInternal.target = {
-    documents,
-    mainDocument,
-};
-/**Itterates a function over all existing documents */
-export let forDocuments = (func: (document: Document) => void) => {
-    for (let i = 0; i < documents.length; i++) {
-        func(documents[i]);
-    }
+interface DocumentHandlerEvents {
+    /**Fired when document is added*/
+    added: Document,
+    /**Fired when document is removed*/
+    removed: Document,
 }
 
-/**Registers a document with the theme engine, which will be updated with
- * @param document document to register
- * @param styles copies all style from main document if set true */
-export let registerDocument = (document: Document, styles?: boolean) => {
-    if (documents.includes(document)) {
-        console.warn('Document registered twice');
-    } else {
-        documents.push(document);
+export default class DocumentHandler {
+    /**Stores all managed documents */
+    private _documents: Document[];
+    /**Stores the main docuement of the manager */
+    public readonly main: Document;
+    /**Event handler */
+    private _events: EventHandler<DocumentHandlerEvents, this>;
+    /**Manager events */
+    public readonly events: EventHandlerUserOnly<DocumentHandlerEvents, this>;
+
+    constructor(mainDocument: Document) {
+        this.main = mainDocument;
+        this._documents = [mainDocument];
+        this._events = new EventHandler();
+        this._events.target = this;
+        this.events = this._events.eventsUserOnly
+    }
+
+    /**Itterates a function over all existing documents */
+    forDocuments(func: (document: Document) => void) {
+        for (let i = 0; i < this._documents.length; i++)
+            func(this._documents[i]);
+    }
+
+    get documents() {
+        return [...this._documents];
+    }
+
+    /**Registers a document with the theme engine, which will be updated with
+     * @param document document to register
+     * @param styles copies all style from main document if set true */
+    registerDocument(document: Document, styles?: boolean) {
+        if (this._documents.includes(document))
+            return console.warn('Document registered twice');
+        this._documents.push(document);
         if (styles) {
-            let headElements = mainDocument.head.children
+            let headElements = this.main.head.children
             for (let i = 0; i < headElements.length; i++) {
                 switch (headElements[i].nodeName) {
                     case 'LINK':
@@ -43,18 +56,17 @@ export let registerDocument = (document: Document, styles?: boolean) => {
                 }
             }
         }
-        eventsInternal.emit('documentAdded', document);
+        this._events.emit('added', document);
+    }
+
+    /**Registers a document with the theme engine, which will be updated with */
+    deregisterDocument(document: Document) {
+        let index = this._documents.indexOf(document);
+        if (index == -1)
+            return console.warn('Document not registered');
+        if (this._documents[index] === this.main)
+            return console.warn('Main document cannot be removed');
+        this._documents.splice(index, 1);
+        this._events.emit('removed', document);
     }
 }
-
-/**Registers a document with the theme engine, which will be updated with */
-export let deregisterDocument = (document: Document) => {
-    let index = documents.indexOf(document);
-    if (index != -1) {
-        documents.splice(index, 1);
-        eventsInternal.emit('documentRemoved', document);
-    } else {
-        console.warn('Document not registered');
-    }
-}
-
