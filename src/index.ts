@@ -1,4 +1,4 @@
-import { EventHandler, EventHandlerUserOnly } from "@chocolatelib/events"
+import { EventConsumer, EventHandler } from "@chocolatelib/events"
 
 interface DocumentHandlerEvents {
     /**Fired when document is added*/
@@ -15,14 +15,13 @@ export default class DocumentHandler {
     /**Event handler */
     private _events: EventHandler<DocumentHandlerEvents, this>;
     /**Manager events */
-    public readonly events: EventHandlerUserOnly<DocumentHandlerEvents, this>;
+    public readonly events: EventConsumer<DocumentHandlerEvents, this>;
 
     constructor(mainDocument: Document) {
         this.main = mainDocument;
         this._documents = [mainDocument];
-        this._events = new EventHandler();
+        this.events = this._events = new EventHandler(this);
         this._events.target = this;
-        this.events = this._events.eventsUserOnly
     }
 
     /**Itterates a function over all existing documents */
